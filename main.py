@@ -10,12 +10,14 @@ class FileBrowserApp(QWidget):
     def __init__(self):
         super().__init__()
         self.translation_holder = None
-        self.setWindowTitle('File Browser')
+        self.setWindowTitle('Translator')
 
         # Line edits to display file paths
         self.le_blueprint_path = QLineEdit()
         self.le_translation_csv_path = QLineEdit()
         self.le_output_path = QLineEdit()
+        self.l_chosen_language = QLabel()
+        self.l_chosen_language.setText("Chosen language: ")
 
         # Buttons for browsing files
         self.btn_browse_blueprint = QPushButton('Browse')
@@ -29,6 +31,10 @@ class FileBrowserApp(QWidget):
 
         self.btn_translate = QPushButton("Translate")
         self.btn_translate.clicked.connect(lambda: self.translate_lang())
+
+        self.btn_open_translated_file = QPushButton("Open file with translation")
+        self.btn_open_translated_file.clicked.connect(lambda: os.startfile(self.le_output_path.text()))
+        self.btn_open_translated_file.setVisible(False)
 
         self.lb_blueprint = QLabel()
         self.lb_blueprint.setText("файл xml со структурой перевода")
@@ -48,7 +54,6 @@ class FileBrowserApp(QWidget):
 
         # File 2 layout
         translation_layout = QHBoxLayout()
-        ll_available_translations = QListView
         translation_layout.addWidget(self.lb_translation_file)
         translation_layout.addWidget(self.le_translation_csv_path)
         translation_layout.addWidget(self.btn_browse_translation)
@@ -62,19 +67,22 @@ class FileBrowserApp(QWidget):
         # creating a QListWidget
         self.list_widget = QListWidget(self)
 
-        self.list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)  # Always show horizontal scrollbar
+        self.list_widget.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOn)  # Always show horizontal scrollbar
         self.list_widget.setFlow(QListWidget.LeftToRight)  # Set items flow from left to right
         self.list_widget.setWrapping(False)  # No wrapping
         self.list_widget.setResizeMode(QListWidget.Adjust)  # Adjust size to content
 
         layout.addLayout(blueprint_layout)
         layout.addLayout(translation_layout)
+        layout.addWidget(self.l_chosen_language)
         layout.addWidget(self.list_widget)
         layout.addLayout(output_layout)
         layout.addWidget(self.btn_translate)
+        layout.addWidget(self.btn_open_translated_file)
 
         self.setLayout(layout)
-        self.setGeometry(600, 100, 200, 200)
+        self.setGeometry(600, 100, 400, 200)
         self.show()
 
     def browse_file(self, lineedit):
@@ -96,13 +104,18 @@ class FileBrowserApp(QWidget):
             item = QListWidgetItem(f"Item {i}")
             button = QPushButton()
             button.setText(i)
-            button.clicked.connect(lambda _, x=i: self.translation_holder.set_new_lang(x))
+            button.clicked.connect(lambda _, new_lang=i: self._new_language_choosen(new_lang))
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, button)
 
     def translate_lang(self):
         translator = AndroidXmlLanguageTranslator(self.le_blueprint_path.text(), self.translation_holder)
         translator.print_translated_xml(self.le_output_path.text())
+        self.btn_open_translated_file.setVisible(True)
+
+    def _new_language_choosen(self, new_lang):
+        self.translation_holder.set_new_lang(new_lang)
+        self.l_chosen_language.setText(f"Chosen language: {new_lang}")
 
 
 if __name__ == '__main__':

@@ -45,7 +45,7 @@ class TranslationsHolder:
             self.available_langs = reader.fieldnames
             for row in reader:
                 name = row["name"].replace(".", "_").replace("\"", "").replace(" ", "_")
-                body = row[self.lang].replace(r"'", r"\'")
+                body = row[self.lang].replace(r"\'", r"'").replace(r"'", r"\'")
                 color_match = re.findall(pattern, body)
                 if color_match:
                     body = body.replace(color_match[0], "'{}'".format(color_match[0]))
