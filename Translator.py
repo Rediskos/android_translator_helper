@@ -14,7 +14,7 @@ class MyDialect(csv.Dialect):
 class TranslationsHolder:
     translations_name_to_body = {}
     translations_body_to_body = {}
-    available_langs = {}
+    available_langs = []
 
     def __init__(self, path_to_translations_file, default_lang="en", etalon_lang="ru"):
         self.lang = default_lang
@@ -23,6 +23,7 @@ class TranslationsHolder:
         self._read_new_lang()
 
     def set_new_lang(self, new_lang):
+        print(new_lang)
         if new_lang in self.available_langs:
             self.lang = new_lang
             self._read_new_lang()
