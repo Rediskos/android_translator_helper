@@ -111,6 +111,7 @@ class FileBrowserApp(QWidget):
     def translate_lang(self):
         translator = AndroidXmlLanguageTranslator(self.le_blueprint_path.text(), self.translation_holder)
         translator.print_translated_xml(self.le_output_path.text())
+        XmlNamesHolder(self.le_blueprint_path.text())
         self.btn_open_translated_file.setVisible(True)
 
     def _new_language_choosen(self, new_lang):
@@ -118,7 +119,11 @@ class FileBrowserApp(QWidget):
         self.l_chosen_language.setText(f"Chosen language: {new_lang}")
 
 
-if __name__ == '__main__':
+def translator_app():
     app = QApplication(sys.argv)
     ex = FileBrowserApp()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    translator_app()

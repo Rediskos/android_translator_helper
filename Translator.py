@@ -34,7 +34,7 @@ class TranslationsHolder:
         self.path_to_translations_file = new_translations_file_path
         self._read_new_lang()
 
-    def _read_new_lang(self):
+    def _read_new_lang(self, use_name_row=True):
         with open(self.path_to_translations_file, newline='', encoding='utf-8') as translationsFile:
             dialect = csv.Dialect
             dialect.delimiter = ';'
@@ -44,13 +44,14 @@ class TranslationsHolder:
             reader = csv.DictReader(translationsFile, dialect=MyDialect)
             self.available_langs = reader.fieldnames
             for row in reader:
-                name = row["name"].replace(".", "_").replace("\"", "").replace(" ", "_")
                 body = row[self.lang].replace(r"\'", r"'").replace(r"'", r"\'")
                 color_match = re.findall(pattern, body)
                 if color_match:
                     body = body.replace(color_match[0], "'{}'".format(color_match[0]))
-                if name not in self.translations_name_to_body:
-                    self.translations_name_to_body[name] = body
+                if use_name_row:
+                    name = row["name"].replace(".", "_").replace("\"", "").replace(" ", "_")
+                    if name not in self.translations_name_to_body:
+                        self.translations_name_to_body[name] = body
 
                 etalon_body = row[self.etalon_lang].replace("\"", "").lower()
                 if body and etalon_body not in self.translations_body_to_body:
@@ -126,3 +127,16 @@ class AndroidXmlLanguageTranslator:
             return ET.fromstring(string)
         except:
             return False
+
+
+class XmlNamesHolder:
+    def __init__(self, path_to_xml):
+        xml_tree = ET.parse(path_to_xml)
+        elem_dict = {}
+        for elem in xml_tree.iter():
+            try:
+                elem_dict[elem.attrib["name"]] = elem.text
+            except:
+                pass
+
+        print(len(elem_dict))
